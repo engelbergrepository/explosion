@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="data:," />
-  <title>Proving Ground</title>
+  <title>Smoke simulation</title>
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
@@ -13,32 +13,19 @@
     <div id="gate"></div>
     <div id="slate">
       <div class="rec"><span></span> REC</div>
-      <div id="cam-id">CAM —</div>
+      <div id="cam-id">FREE CAMERA · SMOKE CANNON</div>
       <div id="tc">00:00:00</div>
     </div>
     <div id="flash"></div>
   </div>
   <aside id="panel">
     <header>
-      <p class="eyebrow">Range film · instrument record</p>
-      <h1>Proving Ground</h1>
-      <p id="blurb">Pick a test, a camera, and a clock. Then ignite.</p>
+      <p class="eyebrow">GPU volume · continuous emission</p>
+      <h1>Smoke simulation</h1>
+      <p id="blurb">A horizontal cannon emits into the desert. Emit smoke to start.</p>
     </header>
 
-    <section>
-      <h2>Test</h2>
-      <label>Explosion source
-        <select id="source">
-          <option value="simulation" selected>Animated simulation</option>
-          <option value="gas">Gas fluid simulation</option>
-          <option value="smoke">Smoke simulation</option>
-        </select>
-      </label>
-      <div id="tests"></div>
-      <p id="caption"></p>
-    </section>
-
-    <section id="smoke-controls" hidden>
+    <section id="smoke-controls">
       <h2>Smoke simulation</h2>
       <fieldset id="smoke-editor">
         <legend>Scene editor</legend>
@@ -82,71 +69,16 @@
         <input id="smoke-density" type="range" min="0.25" max="5" step="0.05" value="1.8" />
       </label>
       <label>Smoke color <input id="smoke-color" type="color" value="#a6a9ad" /></label>
-      <p class="hint">Left-click an object to select it, then drag its gizmo. Middle-drag orbits; Shift + middle-drag pans; scroll zooms. Object edits affect the running plume. Smoke is simulated within X/Z ±64 m and Y 0–80 m.</p>
-    </section>
-
-    <section id="gas-controls" hidden>
-      <h2>Gas simulation live mix</h2>
-      <p class="hint">Density, heat, and velocity are simulated on a 3D grid. Hot gas starts in a small region at ground zero; playback and scrubbing recompute its motion.</p>
-      <p id="gas-status" class="hint">Select Gas fluid simulation to begin.</p>
-      <label>Brightness <output id="gas-bright-out"></output>
-        <input id="gas-bright" type="range" min="0.25" max="2.5" step="0.01" value="1" />
-      </label>
-      <label>Density <output id="gas-density-out"></output>
-        <input id="gas-density" type="range" min="0" max="3" step="0.01" value="1" />
-      </label>
-      <label>Smoke color <input id="gas-smoke-color" type="color" value="#786c60" /></label>
-      <label>Glow color <input id="gas-glow-color" type="color" value="#ff4b12" /></label>
-      <label>Glow strength <output id="gas-glow-out"></output>
-        <input id="gas-glow" type="range" min="0" max="5" step="0.01" value="1.6" />
-      </label>
-      <label>Sunlight <output id="gas-sun-out"></output>
-        <input id="gas-sun" type="range" min="0" max="3" step="0.01" value="1.2" />
-      </label>
-      <label>Self-shadow <output id="gas-shadow-out"></output>
-        <input id="gas-shadow" type="range" min="0" max="3" step="0.01" value="1.1" />
-      </label>
-      <label>Forward scattering <output id="gas-anisotropy-out"></output>
-        <input id="gas-anisotropy" type="range" min="0" max="0.8" step="0.01" value="0.5" />
-      </label>
-      <h2>Gas motion</h2>
-      <label>Initial outward velocity <output id="gas-velocity-out"></output>
-        <input id="gas-velocity" type="range" min="0" max="300" step="1" value="120" />
-      </label>
-      <label>Initial upward velocity <output id="gas-rise-out"></output>
-        <input id="gas-rise" type="range" min="0" max="180" step="1" value="45" />
-      </label>
-      <label>Hot gas source duration <output id="gas-duration-out"></output>
-        <input id="gas-duration" type="range" min="0.2" max="3" step="0.1" value="0.9" />
-      </label>
-      <label>Expansion pressure <output id="gas-pressure-out"></output>
-        <input id="gas-pressure" type="range" min="0" max="2000" step="10" value="800" />
-      </label>
-      <label>Buoyancy <output id="gas-buoyancy-out"></output>
-        <input id="gas-buoyancy" type="range" min="0" max="60" step="0.5" value="24" />
-      </label>
-      <label>Drag <output id="gas-drag-out"></output>
-        <input id="gas-drag" type="range" min="0" max="1" step="0.01" value="0.18" />
-      </label>
-      <label>Cooling <output id="gas-cooling-out"></output>
-        <input id="gas-cooling" type="range" min="0" max="0.25" step="0.005" value="0.06" />
-      </label>
-      <label>Smoke thinning <output id="gas-thinning-out"></output>
-        <input id="gas-thinning" type="range" min="0" max="0.1" step="0.002" value="0.008" />
-      </label>
+      <p class="hint">Left-click an object to select it, then drag its gizmo. Middle-drag orbits; Shift + middle-drag pans; scroll zooms. Smoke is simulated within X/Z ±64 m and Y 0–80 m.</p>
     </section>
 
     <section>
       <h2>Camera</h2>
-      <div id="cameras"></div>
-      <label>Distance <output id="dist-out"></output>
-        <input id="distance" type="range" min="0.35" max="2.5" step="0.01" value="1" />
-      </label>
       <label>Focal length <output id="focal-out"></output>
-        <input id="focal" type="range" min="18" max="400" step="1" value="85" />
+        <input id="focal" type="range" min="18" max="85" step="1" value="28" />
       </label>
       <label>Focus <output id="focus-out"></output>
-        <input id="focus" type="range" min="50" max="60000" step="10" value="8000" />
+        <input id="focus" type="range" min="2" max="200" step="0.5" value="40" />
       </label>
       <label>f-stop <output id="fstop-out"></output>
         <input id="fstop" type="range" min="1.4" max="22" step="0.1" value="8" />
@@ -158,77 +90,28 @@
           <option value="eastman">Eastman Color</option>
         </select>
       </label>
+      <label>Brightness <output id="bright-out"></output>
+        <input id="bright" type="range" min="0.25" max="2.5" step="0.01" value="1" />
+      </label>
     </section>
 
     <section id="clock-controls">
       <h2>Clock</h2>
-      <div id="count" hidden>T− 04</div>
       <label>Playback <output id="time-out"></output>
-        <input id="time" type="range" min="0" max="120" step="0.05" value="0" />
+        <input id="time" type="range" min="0" max="30" step="0.05" value="0" />
       </label>
       <label>Roll length <output id="roll-out"></output>
-        <input id="roll" type="range" min="20" max="180" step="1" value="90" />
+        <input id="roll" type="range" min="8" max="60" step="1" value="30" />
       </label>
       <label>Rate <output id="rate-out"></output>
         <input id="rate" type="range" min="0.1" max="4" step="0.1" value="1" />
       </label>
       <div class="row">
-        <button id="ignite" type="button">Ignite</button>
-        <button id="hold" type="button">Hold</button>
+        <button id="ignite" type="button">Emit smoke</button>
+        <button id="hold" type="button" disabled>Pause / resume</button>
         <button id="reset" type="button">Reset</button>
-        <button id="stop" type="button" hidden>Stop &amp; unload GPU</button>
+        <button id="stop" type="button" disabled>Stop &amp; unload GPU</button>
       </div>
-      <label class="check"><input id="sound" type="checkbox" checked /> Delayed rumble</label>
-    </section>
-
-    <section id="simulation-controls">
-      <h2>Simulation live mix</h2>
-      <p class="hint">These belong to the shot, not to the history card. They update while the cloud is moving.</p>
-      <label>Brightness <output id="bright-out"></output>
-        <input id="bright" type="range" min="0.25" max="2.5" step="0.01" value="1" />
-      </label>
-      <label>Plasma mass <output id="mass-out"></output>
-        <input id="mass" type="range" min="0.5" max="40" step="0.1" value="8" />
-      </label>
-      <label>Ejecta particles <output id="particles-out"></output>
-        <input id="particles" type="range" min="200000" max="2097152" step="65536" value="2097152" />
-      </label>
-      <label>Dust amount <output id="dust-out"></output>
-        <input id="dust" type="range" min="0.05" max="0.75" step="0.01" value="0.42" />
-      </label>
-      <label>Dust size <output id="dust-size-out"></output>
-        <input id="dust-size" type="range" min="0.2" max="3" step="0.01" value="1" />
-      </label>
-      <label>Dust divergence <output id="dust-div-out"></output>
-        <input id="dust-div" type="range" min="0" max="1" step="0.01" value="0.45" />
-      </label>
-      <label>Shock speed <output id="shock-out"></output>
-        <input id="shock" type="range" min="343" max="700" step="1" value="400" />
-      </label>
-      <label>Shock thickness <output id="shock-thick-out"></output>
-        <input id="shock-thick" type="range" min="0.2" max="3" step="0.01" value="1" />
-      </label>
-      <label>Scale <output id="scale-out"></output>
-        <input id="scale" type="range" min="0.3" max="3" step="0.01" value="1" />
-      </label>
-      <label>Plume rise <output id="plume-out"></output>
-        <input id="plume" type="range" min="6" max="80" step="0.5" value="28" />
-      </label>
-      <label>Flash <output id="flash-out"></output>
-        <input id="flash" type="range" min="0" max="3" step="0.01" value="1" />
-      </label>
-      <label>Stem <output id="stem-out"></output>
-        <input id="stem" type="range" min="0.2" max="3" step="0.01" value="1" />
-      </label>
-      <label>Cap spread <output id="cap-out"></output>
-        <input id="cap" type="range" min="0.2" max="3" step="0.01" value="1" />
-      </label>
-      <label>Wind <output id="wind-out"></output>
-        <input id="wind" type="range" min="-1" max="1" step="0.01" value="0.15" />
-      </label>
-      <label>Grain <output id="grain-out"></output>
-        <input id="grain" type="range" min="0" max="1" step="0.01" value="0.45" />
-      </label>
     </section>
   </aside>
   <script type="module" src="/src/main.js"></script>
