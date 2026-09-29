@@ -1,0 +1,8 @@
+node_modules/
+dist/
+blender/
+*.blend
+*.blend1
+*.vdb
+Grok*
+.DS_Store

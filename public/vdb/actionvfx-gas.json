@@ -1,0 +1,12 @@
+{
+  "width": 126,
+  "height": 167,
+  "depth": 130,
+  "scales": {
+    "density": 12.0,
+    "temperature": 15.0,
+    "heat": 0.4
+  },
+  "source": "Gas_Explosion_06_LOD0_0050.vdb",
+  "frame": 50
+}

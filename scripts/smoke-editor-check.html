@@ -1,0 +1,45 @@
+<!doctype html><html><head><title>Smoke editor GPU checks</title></head><body><pre id="result">Running...</pre>
+<script type="module">
+import * as THREE from 'three/webgpu';
+import { uniform } from 'three/tsl';
+import { createSmokeSimulation } from '../src/smoke_sim.js';
+const out = document.getElementById('result'), results = [];
+const renderer = new THREE.WebGPURenderer(); renderer.setSize(64,64);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(45,1,0.1,500);
+camera.position.set(24,18,65); camera.lookAt(22,10,0);
+const params = { velocity:14, decay:0, buoyancy:0, buoyancyDecay:0, turbulence:0,
+  particleSize:1.3, count:4096, opacity:1.8, color:'#a6a9ad' };
+let sim;
+function check(value, label) { if (!value) throw new Error(label); results.push('PASS '+label); out.textContent=results.join('\n'); }
+try {
+  await renderer.init(); const device=renderer.backend.device; device.pushErrorScope('validation');
+  const make = () => { sim=createSmokeSimulation(uniform(new THREE.Vector3(1,1,0).normalize())); sim.setParams(params); scene.add(sim.root); sim.root.visible=true; };
+  async function run(time) { sim.reset(); let t=sim.advance(renderer,0); while(t+0.0001<time)t=sim.advance(renderer,time); renderer.render(scene,camera); return sim.inspect(renderer); }
+  renderer.render(scene,camera);
+  const baseline={...renderer.info.memory};
+  make();
+  sim.cannon.position.set(-20,10,0); sim.cannon.rotation.z=Math.PI/2;
+  const moved=await run(1);
+  check(moved.positions[1]>21 && moved.positions[0]<-19 && moved.positions[0]>-21,'Translation and rotation drive GPU emission');
+  sim.cannon.position.set(0,3,0); sim.cannon.rotation.set(0,0,0); sim.cube.position.set(8,3,0);
+  const collision=await run(2);
+  check(collision.positions[0]<8 && Math.abs(collision.positions[2])>1,'Cube blocks and deflects the smoke jet');
+  sim.cube.rotation.y=Math.PI/4;
+  const rotated=await run(2), inverse=sim.cube.matrixWorld.clone().invert(), p=new THREE.Vector3();
+  let inside=0;
+  for(let i=0;i<4096;i++)if(rotated.positions[i*4+3]>=0){p.fromArray(rotated.positions,i*4).applyMatrix4(inverse);if(Math.abs(p.x)<2.99 && Math.abs(p.y)<2.99 && Math.abs(p.z)<2.99)inside++;}
+  check(inside===0,'Rotated cube excludes all simulated particles');
+  // Move the cube onto an already emitted plume, then step once.
+  sim.cube.position.set(1,3,0); sim.updateObjects(); sim.advance(renderer,2+1/30);
+  const swept=await sim.inspect(renderer); inverse.copy(sim.cube.matrixWorld).invert(); inside=0;
+  for(let i=0;i<4096;i++)if(swept.positions[i*4+3]>=0){p.fromArray(swept.positions,i*4).applyMatrix4(inverse);if(Math.abs(p.x)<2.99 && Math.abs(p.y)<2.99 && Math.abs(p.z)<2.99)inside++;}
+  check(inside===0,'Moving cube expels existing smoke samples (remaining inside: '+inside+')');
+  const before={...renderer.info.memory}; sim.dispose(renderer);
+  check(renderer.info.memory.storageAttributes===0,'Stop destroys all five GPU storage buffers');
+  check(renderer.info.memory.textures<before.textures && renderer.info.memory.geometries===baseline.geometries,'Stop releases volume texture and scene geometry');
+  for(let cycle=0;cycle<2;cycle++){make();await run(0.2);sim.dispose(renderer);check(renderer.info.memory.storageAttributes===0,'Restart cycle '+(cycle+1)+' releases buffers');}
+  await device.queue.onSubmittedWorkDone(); const error=await device.popErrorScope();
+  check(!error,'WebGPU validation: '+(error?.message||'clean'));
+}catch(error){out.textContent=results.join('\n')+'\nFAIL '+error.stack;console.error(error);}
+finally{await renderer.dispose();}
+</script></body></html>

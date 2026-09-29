@@ -1,0 +1,59 @@
+<!doctype html><html><head><title>Smoke GPU diagnostics</title></head><body>
+<pre id="result">Running GPU checks...</pre>
+<script type="module">
+import * as THREE from 'three/webgpu';
+import { uniform } from 'three/tsl';
+import { createSmokeSimulation } from '../src/smoke_sim.js';
+const out = document.getElementById('result');
+const results = [];
+const renderer = new THREE.WebGPURenderer();
+renderer.setSize(64, 64);
+try {
+  await renderer.init();
+  const device = renderer.backend.device;
+  const errors = [];
+  device.addEventListener('uncapturederror', e => errors.push(e.error.message));
+  device.pushErrorScope('validation');
+  const sim = createSmokeSimulation(uniform(new THREE.Vector3(1, 1, 0).normalize()));
+  const scene = new THREE.Scene(); scene.add(sim.root); sim.root.visible = true;
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
+  camera.position.set(24, 18, 65); camera.lookAt(22, 10, 0);
+  const base = { velocity: 14, decay: 0, buoyancy: 0, buoyancyDecay: 0,
+    turbulence: 0, particleSize: 1.3, count: 4096, opacity: 1.8, color: '#a6a9ad' };
+  function check(condition, label) { if (!condition) throw new Error(label); results.push('PASS ' + label); }
+  async function run(changes = {}, time = 1) {
+    sim.setParams({ ...base, ...changes }); sim.reset();
+    let t = sim.advance(renderer, 0);
+    while (t + 0.0001 < time) t = sim.advance(renderer, time);
+    renderer.render(scene, camera);
+    return sim.inspect(renderer);
+  }
+  const empty = await run({}, 0);
+  check(empty.bins.every(v => v === 0), 'No smoke before emission');
+  const forward = await run();
+  results.push('Position/velocity at 1 s: ' + [...forward.positions.slice(0,4), ...forward.velocities.slice(0,4)].join(', '));
+  check(forward.positions[0] > 12 && forward.positions[0] < 15, 'Initial velocity transports smoke from the muzzle');
+  check(Math.abs(forward.positions[0] - 0.05 - forward.velocities[0]) < 0.001, 'No drag preserves velocity');
+  const mass = data => data.bins.reduce((sum, v) => sum + v, 0);
+  check(mass(forward) > 0, 'Particles deposit nonzero GPU density');
+  const drag = await run({ decay: 1 });
+  check(drag.positions[0] < forward.positions[0] * 0.75, 'Velocity decay slows travel');
+  const rise = await run({ buoyancy: 4 });
+  check(rise.positions[1] > forward.positions[1] + 1, 'Buoyancy raises smoke');
+  const cool = await run({ buoyancy: 4, buoyancyDecay: 2 });
+  check(cool.positions[1] < rise.positions[1] && cool.velocities[3] < 0.2, 'Buoyancy decays as heat is lost');
+  const turbulence = await run({ turbulence: 4 });
+  check(Math.abs(turbulence.positions[2] - forward.positions[2]) > 0.01, 'Turbulence changes particle trajectories');
+  const detailed = await run({ count: 65536 });
+  check(Math.abs(mass(detailed) / mass(forward) - 1) < 0.1, 'More particles preserve smoke mass');
+  const repeat = await run();
+  check(repeat.positions.every((v, i) => v === forward.positions[i]), 'Reset and replay are deterministic');
+  sim.advance(renderer, 0); const rewound = await sim.inspect(renderer);
+  check(rewound.bins.every(v => v === 0), 'Backward seeking clears the previous plume');
+  await device.queue.onSubmittedWorkDone();
+  const error = await device.popErrorScope();
+  check(!error && errors.length === 0, 'Compute and volume shaders pass WebGPU validation: ' + (error?.message || errors.join('\n') || 'clean'));
+  out.textContent = results.join('\n');
+} catch (error) { out.textContent = results.join('\n') + '\nFAIL ' + error.stack; console.error(error); }
+finally { renderer.dispose(); }
+</script></body></html>
