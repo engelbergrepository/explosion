@@ -23,7 +23,7 @@ export function createSmokeEditor(camera, canvas, scene, simulation) {
   let enabled = true, dragged = false, down = null;
   function refresh() {
     const object = transform.object;
-    selector.value = object === simulation.cannon ? 'cannon' : object === simulation.cube ? 'cube' : '';
+    selector.value = object === simulation.cannon ? 'cannon' : object === simulation.cannon2 ? 'cannon2' : object === simulation.cube ? 'cube' : '';
     for (const input of fields) {
       input.disabled = !object;
       const [property, axis] = input.dataset.smokeTransform.split('.');
@@ -55,7 +55,7 @@ export function createSmokeEditor(camera, canvas, scene, simulation) {
     if (event.value) dragged = true;
   });
   transform.addEventListener('objectChange', () => { simulation.updateObjects(); refresh(); });
-  selector.addEventListener('change', () => select(selector.value === 'cannon' ? simulation.cannon : selector.value === 'cube' ? simulation.cube : null), { signal });
+  selector.addEventListener('change', () => select(selector.value === 'cannon' ? simulation.cannon : selector.value === 'cannon2' ? simulation.cannon2 : selector.value === 'cube' ? simulation.cube : null), { signal });
   document.getElementById('smoke-move').addEventListener('click', () => mode('translate'), { signal });
   document.getElementById('smoke-rotate').addEventListener('click', () => mode('rotate'), { signal });
   document.getElementById('smoke-focus').addEventListener('click', focus, { signal });
@@ -77,8 +77,8 @@ export function createSmokeEditor(camera, canvas, scene, simulation) {
     const rect = canvas.getBoundingClientRect();
     pointer.set((e.clientX - rect.left) / rect.width * 2 - 1, 1 - (e.clientY - rect.top) / rect.height * 2);
     raycaster.setFromCamera(pointer, camera);
-    let object = raycaster.intersectObjects([simulation.cannon, simulation.cube], true)[0]?.object;
-    while (object && object !== simulation.cannon && object !== simulation.cube) object = object.parent;
+    let object = raycaster.intersectObjects([simulation.cannon, simulation.cannon2, simulation.cube], true)[0]?.object;
+    while (object && object !== simulation.cannon && object !== simulation.cannon2 && object !== simulation.cube) object = object.parent;
     select(object || null);
   }, { signal });
   window.addEventListener('keydown', e => {

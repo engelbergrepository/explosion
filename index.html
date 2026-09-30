@@ -43,7 +43,7 @@
       <fieldset id="smoke-editor">
         <legend>Scene editor</legend>
         <label>Selected object
-          <select id="smoke-object"><option value="">None</option><option value="cannon">Cannon</option><option value="cube">Collision cube</option></select>
+          <select id="smoke-object"><option value="">None</option><option value="cannon">Cannon 1</option><option value="cannon2">Cannon 2</option><option value="cube">Collision cube</option></select>
         </label>
         <div class="row"><button id="smoke-move" type="button">Move (G)</button><button id="smoke-rotate" type="button">Rotate (R)</button><button id="smoke-focus" type="button">Focus (F)</button></div>
         <div class="transform-fields">
@@ -55,8 +55,9 @@
           <label>RZ ° <input aria-label="Object rotation Z" data-smoke-transform="rotation.z" type="number" step="5" /></label>
         </div>
       </fieldset>
-      <p class="hint">A horizontal cannon emits smoke continuously. Invisible samples merge into one shaded volume. More particles resolve finer detail; they do not add more smoke.</p>
+      <p class="hint">Two cannons emit separate smoke plumes into the same shaded volume. Their colors and motion can be compared side by side. More particles resolve finer detail; they do not add more smoke.</p>
       <p id="smoke-status" class="hint" role="status">Press Emit smoke to start.</p>
+      <h3>Cannon 1 · gray smoke</h3>
       <label>Initial velocity <output id="smoke-velocity-out"></output>
         <input id="smoke-velocity" type="range" min="0" max="30" step="0.5" value="14" />
       </label>
@@ -82,6 +83,32 @@
         <input id="smoke-density" type="range" min="0.25" max="5" step="0.05" value="1.8" />
       </label>
       <label>Smoke color <input id="smoke-color" type="color" value="#a6a9ad" /></label>
+      <h3>Cannon 2 · blue smoke</h3>
+      <label>Initial velocity <output id="smoke2-velocity-out"></output>
+        <input id="smoke2-velocity" type="range" min="0" max="30" step="0.5" value="10" />
+      </label>
+      <label>Velocity decay <output id="smoke2-decay-out"></output>
+        <input id="smoke2-decay" type="range" min="0" max="1.5" step="0.01" value="0.38" />
+      </label>
+      <label>Buoyancy <output id="smoke2-buoyancy-out"></output>
+        <input id="smoke2-buoyancy" type="range" min="0" max="8" step="0.1" value="4.5" />
+      </label>
+      <label>Buoyancy decay <output id="smoke2-buoyancy-decay-out"></output>
+        <input id="smoke2-buoyancy-decay" type="range" min="0" max="1.5" step="0.01" value="0.12" />
+      </label>
+      <label>Turbulence <output id="smoke2-turbulence-out"></output>
+        <input id="smoke2-turbulence" type="range" min="0" max="12" step="0.1" value="4.2" />
+      </label>
+      <label>Particle size <output id="smoke2-size-out"></output>
+        <input id="smoke2-size" type="range" min="0.5" max="3" step="0.05" value="1.65" />
+      </label>
+      <label>Particle count <output id="smoke2-count-out"></output>
+        <input id="smoke2-count" type="range" min="4096" max="65536" step="4096" value="8192" />
+      </label>
+      <label>Density <output id="smoke2-density-out"></output>
+        <input id="smoke2-density" type="range" min="0.25" max="5" step="0.05" value="1.5" />
+      </label>
+      <label>Smoke color <input id="smoke2-color" type="color" value="#54a9cf" /></label>
       <p class="hint">Left-click an object to select it, then drag its gizmo. Middle-drag orbits; Shift + middle-drag pans; scroll zooms. Object edits affect the running plume. Smoke is simulated within X/Z ±64 m and Y 0–80 m.</p>
     </section>
 

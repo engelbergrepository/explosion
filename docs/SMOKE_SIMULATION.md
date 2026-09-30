@@ -1,7 +1,9 @@
 # GPU smoke cannon
 
-Select **Smoke simulation**, then **Emit smoke**. The horizontal cannon emits
-continuously into the existing landscape. Free camera starts close to the cannon.
+Select **Smoke simulation**, then **Emit smoke**. Two horizontal cannons emit
+continuously into the existing landscape. Cannon 1 produces gray smoke; Cannon 2
+starts with blue smoke, slower launch speed, stronger buoyancy and more turbulence.
+Each cannon has its own motion, density, and color controls. Free camera starts close to the cannons.
 Middle-drag orbits, Shift + middle-drag pans, and the wheel zooms. Left-click a
 cannon or cube mesh to select it. G selects the move gizmo, R selects rotation,
 and F frames the selection. The sidebar also provides selection, mode buttons,
@@ -9,7 +11,7 @@ and numerical position/rotation inputs.
 Pause, reset, and timeline seeking are supported. Motion parameter changes replay
 the simulation to the selected time; density and color update without replay.
 
-`src/smoke_gpu.js` owns GPU storage buffers for particle position/age and
+Each cannon has an independent GPU sample and density volume. `src/smoke_gpu.js` owns GPU storage buffers for particle position/age and
 velocity/heat. Fixed 1/30-second compute steps emit samples through the muzzle,
 integrate velocity with exponential drag, apply heat-driven buoyancy and cooling,
 and add coherent curl-noise turbulence. Samples fade and recycle over 12 seconds.
@@ -38,8 +40,8 @@ volume texture, cannon/cube geometry and materials, and editor gizmos. The
 landscape and shared renderer stay available. **Emit smoke** recreates the assets
 with the last object placements. Switching away from smoke also releases them.
 
-`src/smoke_sim.js` builds the cannon and raymarches the density field with
-exponential extinction, smoke color, and internal light attenuation. Its density
+`src/smoke_sim.js` builds both cannons and raymarches both density fields together with
+exponential extinction, density-weighted smoke colors, and internal light attenuation. Its density
 and scattering approach follows the ActionVFX material inspection in
 `ACTIONVFX_VDB_NOTES.md`; it uses no baked VDB shape and no visible particle sprites.
 

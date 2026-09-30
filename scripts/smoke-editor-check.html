@@ -21,6 +21,13 @@ try {
   sim.cannon.position.set(-20,10,0); sim.cannon.rotation.z=Math.PI/2;
   const moved=await run(1);
   check(moved.positions[1]>21 && moved.positions[0]<-19 && moved.positions[0]>-21,'Translation and rotation drive GPU emission');
+  sim.cannon2.position.set(-15,5,12);
+  sim.setSecondParams({ velocity:10, decay:0.38, buoyancy:4.5, buoyancyDecay:0.12,
+    turbulence:4.2, particleSize:1.65, count:4096, opacity:1.5, color:'#54a9cf' });
+  await run(1);
+  const second=await sim.inspectSecond(renderer);
+  check(second.positions[0]>-15 && second.positions[0]<-5 && second.positions[2]>10,
+    'Second cannon emits from its own transform with separate motion settings');
   sim.cannon.position.set(0,3,0); sim.cannon.rotation.set(0,0,0); sim.cube.position.set(8,3,0);
   const collision=await run(2);
   check(collision.positions[0]<8 && Math.abs(collision.positions[2])>1,'Cube blocks and deflects the smoke jet');

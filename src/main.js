@@ -141,7 +141,7 @@ function applyTest(id) {
     ensureSmoke();
     smokeSim.reset();
     applyCamera('free');
-    ui.setCaption('Horizontal smoke cannon · continuous emission into the selected landscape.');
+    ui.setCaption('Two smoke cannons · compare gray and blue plumes in the selected landscape.');
   }
   ui.setTime(0);
 }
@@ -164,12 +164,13 @@ function ensureSmoke() {
   if (smokeSim) return;
   smokeSim = createSmokeSimulation(world.sunDir);
   if (smokeLayout) {
-    for (const name of ['cannon', 'cube']) {
+    for (const name of ['cannon', 'cannon2', 'cube']) {
       smokeSim[name].position.fromArray(smokeLayout[name].position);
       smokeSim[name].quaternion.fromArray(smokeLayout[name].quaternion);
     }
   }
   smokeSim.setParams(readSmokeParams());
+  smokeSim.setSecondParams(readSmokeParams('smoke2'));
   smokeSim.updateObjects();
   scene.add(smokeSim.root);
   smokeEditor = createSmokeEditor(camera, canvas, scene, smokeSim);
@@ -179,7 +180,7 @@ function ensureSmoke() {
 function stopSmoke() {
   if (smokeSim) {
     smokeLayout = {};
-    for (const name of ['cannon', 'cube']) smokeLayout[name] = {
+    for (const name of ['cannon', 'cannon2', 'cube']) smokeLayout[name] = {
       position: smokeSim[name].position.toArray(), quaternion: smokeSim[name].quaternion.toArray()
     };
     smokeEditor.dispose(); smokeEditor = null;
@@ -358,7 +359,7 @@ const ui = bindUI({
     if (source === 'gas') ui.setGasStatus('Hot gas starts at ground zero. Play from 0 s.');
   },
   onGas: () => gasSim.setParams(readGasParams()),
-  onSmoke: () => smokeSim?.setParams(readSmokeParams()),
+  onSmoke: () => { smokeSim?.setParams(readSmokeParams()); smokeSim?.setSecondParams(readSmokeParams('smoke2')); },
   onStop: stopSmoke,
   onDistance: (v) => { clock.distance = v; },
   onFocal: (v) => { clock.focal = v; },
@@ -423,12 +424,12 @@ function readMix() {
   };
 }
 
-function readSmokeParams() {
-  const n = (id) => Number(document.getElementById('smoke-' + id).value);
+function readSmokeParams(prefix = 'smoke') {
+  const n = (id) => Number(document.getElementById(prefix + '-' + id).value);
   return { velocity: n('velocity'), decay: n('decay'), buoyancy: n('buoyancy'),
     buoyancyDecay: n('buoyancy-decay'), turbulence: n('turbulence'),
     particleSize: n('size'), count: n('count'), opacity: n('density'),
-    color: document.getElementById('smoke-color').value };
+    color: document.getElementById(prefix + '-color').value };
 }
 
 function readGasParams() {

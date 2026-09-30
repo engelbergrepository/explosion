@@ -77,6 +77,17 @@ export function bindUI(handlers) {
   bindRange('smoke-count', 'smoke-count-out', (v) => v.toLocaleString(), handlers.onSmoke);
   bindRange('smoke-density', 'smoke-density-out', (v) => v.toFixed(2), handlers.onSmoke);
   document.getElementById('smoke-color').addEventListener('input', handlers.onSmoke);
+  for (const prefix of ['smoke2']) {
+    bindRange(`${prefix}-velocity`, `${prefix}-velocity-out`, (v) => `${v.toFixed(1)} m/s`, handlers.onSmoke);
+    bindRange(`${prefix}-decay`, `${prefix}-decay-out`, (v) => `${v.toFixed(2)} /s`, handlers.onSmoke);
+    bindRange(`${prefix}-buoyancy`, `${prefix}-buoyancy-out`, (v) => `${v.toFixed(1)} m/s²`, handlers.onSmoke);
+    bindRange(`${prefix}-buoyancy-decay`, `${prefix}-buoyancy-decay-out`, (v) => `${v.toFixed(2)} /s`, handlers.onSmoke);
+    bindRange(`${prefix}-turbulence`, `${prefix}-turbulence-out`, (v) => v.toFixed(1), handlers.onSmoke);
+    bindRange(`${prefix}-size`, `${prefix}-size-out`, (v) => `${v.toFixed(2)} m`, handlers.onSmoke);
+    bindRange(`${prefix}-count`, `${prefix}-count-out`, (v) => v.toLocaleString(), handlers.onSmoke);
+    bindRange(`${prefix}-density`, `${prefix}-density-out`, (v) => v.toFixed(2), handlers.onSmoke);
+    document.getElementById(`${prefix}-color`).addEventListener('input', handlers.onSmoke);
+  }
   }
   document.getElementById('gas-smoke-color').addEventListener('input', handlers.onGas);
   document.getElementById('gas-glow-color').addEventListener('input', handlers.onGas);
